@@ -1,8 +1,8 @@
 //
 //  GameScene.swift
-//  Jump
+//  MorePhysics
 //
-//  Created by Harnoor Sethi on 12/20/23.
+//  Created by Harnoor Sethi on 12/18/23.
 //
 
 import SpriteKit
@@ -10,46 +10,104 @@ import GameplayKit
 
 class GameScene: SKScene {
     
-    private var label : SKLabelNode?
     private var spinnyNode : SKShapeNode?
+    public var canAdd = true
+    public var wait = 0
+    public var ball = SKSpriteNode(imageNamed: "ballGreen")
+    
     
     override func didMove(to view: SKView) {
         
-        // Get label node from scene and store it for use later
-        self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
-        if let label = self.label {
-            label.alpha = 0.0
-            label.run(SKAction.fadeIn(withDuration: 2.0))
-        }
         
-        // Create shape node to use during mouse interaction
-        let w = (self.size.width + self.size.height) * 0.05
-        self.spinnyNode = SKShapeNode.init(rectOf: CGSize.init(width: w, height: w), cornerRadius: w * 0.3)
         
-        if let spinnyNode = self.spinnyNode {
-            spinnyNode.lineWidth = 2.5
-            
-            spinnyNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 1)))
-            spinnyNode.run(SKAction.sequence([SKAction.wait(forDuration: 0.5),
-                                              SKAction.fadeOut(withDuration: 0.5),
-                                              SKAction.removeFromParent()]))
-        }
+        
+        
+        var points = [CGPoint(x: -300, y: -350),CGPoint(x: 300, y: -350)]
+        let linearShapeNode = SKShapeNode(points: &points,
+                                          count: points.count)
+        let ground = SKShapeNode(splinePoints: &points,
+                                          count: points.count)
+        
+        ground.lineWidth = 5
+        ground.physicsBody = SKPhysicsBody(edgeFrom: CGPoint(x: -300, y: -350), to: CGPoint(x: 300, y: -350))
+        ground.physicsBody?.restitution = 1.0
+        ground.physicsBody?.isDynamic = false
+        ground.physicsBody?.friction = 0
+             
+        addChild(ground)
+        
+        
+        
+        var pointsLeftSide = [CGPoint(x: -300, y: -350),CGPoint(x: -300, y: 350)]
+       
+        let leftSide = SKShapeNode()
+        
+        leftSide.lineWidth = 5
+        leftSide.physicsBody = SKPhysicsBody(edgeFrom: CGPoint(x: -300, y: -350), to: CGPoint(x: -300, y: 350))
+        leftSide.physicsBody?.restitution = 0.0
+        leftSide.physicsBody?.isDynamic = false
+        leftSide.physicsBody?.friction = 0
+             
+        addChild(leftSide)
+        
+        
+        var pointsRightSide = [CGPoint(x: 300, y: 350),CGPoint(x: 300, y: -350)]
+      
+        let rightSide = SKShapeNode()
+        
+        rightSide.lineWidth = 5
+        rightSide.physicsBody = SKPhysicsBody(edgeFrom: CGPoint(x: 300, y: 350), to: CGPoint(x: 300, y: -350))
+        rightSide.physicsBody?.restitution = 0.0
+        rightSide.physicsBody?.linearDamping = 0.0
+        rightSide.physicsBody?.isDynamic = false
+        rightSide.physicsBody?.friction = 0
+             
+        addChild(rightSide)
+     
+       
+        ball.position = CGPoint(x: 0, y: 0)
+        ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width/2)
+        ball.physicsBody?.usesPreciseCollisionDetection = true
+        ball.physicsBody?.restitution = 1.0
+        ball.physicsBody?.linearDamping = 0.0
+        ball.physicsBody?.friction = 0
+        
+        addChild(ball)
+        
     }
     
     
     func touchDown(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.green
-            self.addChild(n)
-        }
+        
+        
+        
+        ball.physicsBody?.applyForce(CGVector(dx: (((pos.x - ball.position.x) > 0) ? -100 : 100), dy: 0))
+        
+       
+       // self.addChild(newNode)
     }
     
     func touchMoved(toPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.blue
-            self.addChild(n)
+        let newNode = SKSpriteNode(imageNamed: "ballGreen")
+        newNode.position = pos
+        newNode.physicsBody = SKPhysicsBody(circleOfRadius: newNode.size.width/2)
+        newNode.physicsBody?.usesPreciseCollisionDetection = true
+        newNode.physicsBody?.restitution = 1.0
+        newNode.physicsBody?.linearDamping = 0.0
+        newNode.physicsBody?.friction = 0
+        if canAdd{
+          // self.addChild(newNode)
+            canAdd.toggle()
+        }
+        else{
+            wait += 1
+            
+            if wait == 4{
+                
+                canAdd = true
+                wait -= 5
+                
+            }
         }
     }
     
@@ -62,11 +120,22 @@ class GameScene: SKScene {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let label = self.label {
-            label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
+
+
+        for t in touches {
+            
+            self.touchDown(atPoint: t.location(in: self))
+      
+            let location = t.location(in: self)
+            let touchedNode = atPoint(location)
+            if touchedNode.name == "HelloButton" {
+                self.enumerateChildNodes(withName: "ballGreen") {
+                    (node, stop) in
+                    
+                    node.removeFromParent()
+                }
+            }
         }
-        
-        for t in touches { self.touchDown(atPoint: t.location(in: self)) }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -83,6 +152,13 @@ class GameScene: SKScene {
     
     
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
+        if (ball.position.x < -270){
+            ball.position.x = -269
+        }
+        
+        if (ball.position.x > 270){
+            ball.position.x = 269
+        }
+        
     }
 }
