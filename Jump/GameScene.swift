@@ -8,18 +8,20 @@
 import SpriteKit
 import GameplayKit
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var spinnyNode : SKShapeNode?
     public var canAdd = true
     public var wait = 0
     public var ball = SKSpriteNode(imageNamed: "ballGreen")
+    let JUMP_AMOUNT = 1500.0
+    public var liftBall = false
     
     
     override func didMove(to view: SKView) {
         
         
-        
+        physicsWorld.contactDelegate = self
         
         
         var points = [CGPoint(x: -300, y: -350),CGPoint(x: 300, y: -350)]
@@ -30,10 +32,11 @@ class GameScene: SKScene {
         
         ground.lineWidth = 5
         ground.physicsBody = SKPhysicsBody(edgeFrom: CGPoint(x: -300, y: -350), to: CGPoint(x: 300, y: -350))
-        ground.physicsBody?.restitution = 1.0
+        ground.physicsBody?.restitution = 0.0
         ground.physicsBody?.isDynamic = false
         ground.physicsBody?.friction = 0
-             
+        ground.name = "ground"
+        ground.physicsBody?.contactTestBitMask = ground.physicsBody?.collisionBitMask ?? 0
         addChild(ground)
         
         
@@ -68,11 +71,32 @@ class GameScene: SKScene {
         ball.position = CGPoint(x: 0, y: 0)
         ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width/2)
         ball.physicsBody?.usesPreciseCollisionDetection = true
-        ball.physicsBody?.restitution = 1.0
+        ball.physicsBody?.restitution = 0.0
         ball.physicsBody?.linearDamping = 0.0
         ball.physicsBody?.friction = 0
         
         addChild(ball)
+        
+        
+        
+        for t in 1...1{
+            
+            var boundPoints = [CGPoint(x: -50 + 70 * t, y: -250 + 50*t),CGPoint(x: 50 + 70*t, y: -250 + 50*t)]
+            let bound = SKShapeNode(splinePoints: &boundPoints, count: 2)
+            
+            
+            bound.lineWidth = 5
+            bound.physicsBody = SKPhysicsBody(edgeFrom: CGPoint(x: -50 + 70 * t, y: -250 + 50*t), to: CGPoint(x: 50 + 70 * t, y: -250 + 50*t))
+            bound.physicsBody?.restitution = 0.0
+            bound.physicsBody?.isDynamic = false
+            bound.physicsBody?.friction = 0
+            bound.name = "bound"
+            bound.physicsBody?.contactTestBitMask = bound.physicsBody?.collisionBitMask ?? 0
+            addChild(bound)
+            
+            
+        }
+        
         
     }
     
@@ -81,8 +105,8 @@ class GameScene: SKScene {
         
         
         
-        ball.physicsBody?.applyForce(CGVector(dx: (((pos.x - ball.position.x) > 0) ? -100 : 100), dy: 0))
-        
+        ball.physicsBody?.applyForce(CGVector(dx: pos.x, dy: 0))
+   
        
        // self.addChild(newNode)
     }
@@ -138,16 +162,11 @@ class GameScene: SKScene {
         }
     }
     
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchMoved(toPoint: t.location(in: self)) }
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
-    }
-    
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
+    func didBegin(_ contact: SKPhysicsContact) {
+     
+        if contact.bodyA.node?.name == "ground" || contact.bodyB.node?.name == "ground" || contact.bodyA.node?.name == "bound" || contact.bodyB.node?.name == "bound"{
+            liftBall.toggle()
+         }
     }
     
     
@@ -159,6 +178,17 @@ class GameScene: SKScene {
         if (ball.position.x > 270){
             ball.position.x = 269
         }
+        
+        if liftBall{
+            moveBall()
+            liftBall.toggle()
+        }
+        
+    }
+    
+    func moveBall(){
+        
+        ball.physicsBody?.applyForce(CGVector(dx: 0, dy: JUMP_AMOUNT))
         
     }
 }
