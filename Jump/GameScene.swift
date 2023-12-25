@@ -10,7 +10,45 @@ import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    private var spinnyNode : SKShapeNode?
+ /*
+    struct Bound{
+        
+        
+        var posX: CGFloat
+        var collitionBitMask: UInt32 = 0xFFFFFFFF
+        var id: Int
+        var bound: SKShapeNode
+        
+        mutating func makeBound(){
+            
+            var points = [CGPoint(x: Int(posX)-17, y: id*100 - 300),CGPoint(x: Int(posX)+17, y: id*100   - 300)]
+            bound = SKShapeNode(splinePoints: &points, count: 2)
+            bound.lineWidth = 5
+            bound.physicsBody = SKPhysicsBody(edgeFrom: CGPoint(x: Int(posX) - 17, y: id*100 - 300), to: CGPoint(x: Int(posX) + 17, y: id*100 - 300))
+            bound.physicsBody?.restitution = 0.0
+            bound.physicsBody?.isDynamic = false
+            bound.physicsBody?.friction = 0
+            bound.name = "bound"
+            bound.physicsBody?.contactTestBitMask = bound.physicsBody?.collisionBitMask ?? 0
+            bound.physicsBody?.collisionBitMask = collitionBitMask
+            
+        }
+        mutating func changeBitMask(ballPosY: CGFloat){
+            
+            if Int(ballPosY) < Int(id*50) + 30{
+                collitionBitMask = 0
+            }else{
+                
+                collitionBitMask = 0xFFFFFFFF
+            }
+            
+        }
+        
+        
+    }
+    */
+    
+  
     public var canAdd = true
     public var wait = 0
     public var ball = SKSpriteNode(imageNamed: "ballGreen")
@@ -25,8 +63,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
         var points = [CGPoint(x: -300, y: -350),CGPoint(x: 300, y: -350)]
-        let linearShapeNode = SKShapeNode(points: &points,
-                                          count: points.count)
+     
         let ground = SKShapeNode(splinePoints: &points,
                                           count: points.count)
         
@@ -36,12 +73,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ground.physicsBody?.isDynamic = false
         ground.physicsBody?.friction = 0
         ground.name = "ground"
-        ground.physicsBody?.contactTestBitMask = ground.physicsBody?.collisionBitMask ?? 0
+        ground.physicsBody?.collisionBitMask = 0x1
+        ground.physicsBody?.contactTestBitMask = 0
+        
         addChild(ground)
         
         
         
-        var pointsLeftSide = [CGPoint(x: -300, y: -350),CGPoint(x: -300, y: 350)]
+        
        
         let leftSide = SKShapeNode()
         
@@ -54,7 +93,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(leftSide)
         
         
-        var pointsRightSide = [CGPoint(x: 300, y: 350),CGPoint(x: 300, y: -350)]
+        
       
         let rightSide = SKShapeNode()
         
@@ -68,33 +107,46 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(rightSide)
      
        
-        ball.position = CGPoint(x: 0, y: 0)
+        ball.position = CGPoint(x: 0, y: -200)
         ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width/2)
         ball.physicsBody?.usesPreciseCollisionDetection = true
         ball.physicsBody?.restitution = 0.0
         ball.physicsBody?.linearDamping = 0.0
         ball.physicsBody?.friction = 0
-        
+       
+        ball.physicsBody?.collisionBitMask = 0x2
+        ball.physicsBody?.contactTestBitMask = 0x1
         addChild(ball)
         
         
         
-        for t in 1...1{
+        for t in 1...100{
+           
+            let sceneWidth = view.bounds.width
+            let posX = CGFloat.random(in: -sceneWidth+17.5...sceneWidth-17.5)
+            let posY = t*50 - 300
+           /*
+            var bound = Bound(posX: posX, id: t, bound: SKShapeNode())
             
-            var boundPoints = [CGPoint(x: -50 + 70 * t, y: -250 + 50*t),CGPoint(x: 50 + 70*t, y: -250 + 50*t)]
-            let bound = SKShapeNode(splinePoints: &boundPoints, count: 2)
+            bound.makeBound()
             
+            addChild(bound.bound)
+            */
             
-            bound.lineWidth = 5
-            bound.physicsBody = SKPhysicsBody(edgeFrom: CGPoint(x: -50 + 70 * t, y: -250 + 50*t), to: CGPoint(x: 50 + 70 * t, y: -250 + 50*t))
+            var points = [CGPoint(x: Int(posX)-17, y: posY),CGPoint(x: Int(posX)+17, y: posY)]
+            let bound = SKShapeNode(splinePoints: &points, count: 2)
+            bound.lineWidth = 10
+            bound.physicsBody = SKPhysicsBody(edgeFrom: CGPoint(x: Int(posX) - 17, y: posY), to: CGPoint(x: Int(posX) + 17, y: posY))
             bound.physicsBody?.restitution = 0.0
             bound.physicsBody?.isDynamic = false
             bound.physicsBody?.friction = 0
             bound.name = "bound"
-            bound.physicsBody?.contactTestBitMask = bound.physicsBody?.collisionBitMask ?? 0
+            //bound.physicsBody?.categoryBitMask = 0
+            //bound.physicsBody?.collisionBitMask = 0
+            //bound.physicsBody?.contactTestBitMask = 0
+            
+        
             addChild(bound)
-            
-            
         }
         
         
@@ -136,11 +188,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func touchUp(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.red
-            self.addChild(n)
-        }
+
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -164,6 +212,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func didBegin(_ contact: SKPhysicsContact) {
      
+
         if contact.bodyA.node?.name == "ground" || contact.bodyB.node?.name == "ground" || contact.bodyA.node?.name == "bound" || contact.bodyB.node?.name == "bound"{
             liftBall.toggle()
          }
@@ -171,6 +220,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func update(_ currentTime: TimeInterval) {
+
+        self.enumerateChildNodes(withName: "bound"){
+            
+            node,_  in
+            
+
+            
+            if (self.ball.physicsBody?.velocity.dy)! > 0{
+                
+                node.physicsBody?.categoryBitMask = 0
+                
+            }else{
+                
+                node.physicsBody?.categoryBitMask = 0xFFFFFFFF
+            }
+            
+            
+        
+            
+        }
+        
         if (ball.position.x < -270){
             ball.position.x = -269
         }
@@ -192,3 +262,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
 }
+
+
