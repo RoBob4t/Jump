@@ -9,9 +9,6 @@ import SpriteKit
 import GameplayKit
 
 
-
-
-
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
 
@@ -71,15 +68,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let sceneWidth = view.bounds.width
             let posX = CGFloat.random(in: -sceneWidth+200...sceneWidth-200)
             let posY = t*69 - 300
-           /*
-            var bound = Bound(posX: posX, id: t, bound: SKShapeNode())
-            
-            bound.makeBound()
-            
-            addChild(bound.bound)
-            */
-            
-            var points = [CGPoint(x: Int(posX)-17, y: posY),CGPoint(x: Int(posX)+17, y: posY)]
+
+            let posX = CGFloat.random(in: -sceneWidth+200...sceneWidth-200)
+            let posY = t*69 - 300
             let bound = SKShapeNode(splinePoints: &points, count: 2)
             bound.lineWidth = 10
             bound.physicsBody = SKPhysicsBody(edgeFrom: CGPoint(x: Int(posX) - 18, y: posY), to: CGPoint(x: Int(posX) + 18, y: posY))
@@ -109,7 +100,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func touchMoved(toPoint pos : CGPoint) {
       
         newPos = pos.x
-        let dx = newPos-oldPos
+       
         if ball.position.x + dx < 270 && ball.position.x + dx > -270 {
             ball.position.x += dx
         }
@@ -190,15 +181,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 print(requiredBallPos)
                 
             }
-        }
-        
-        
-        if liftBall{
-            moveBall()
-            liftBall.toggle()
-        }
-        
-    }
+
+        if ball.position.y > requiredBallPos{
+            if (scene?.anchorPoint.y)! > (-requiredBallPos/500){
+                scene?.anchorPoint.y -= 0.001
+            }else{
+                requiredBallPos += 500
+                print(requiredBallPos)
+                
+            }
     
     func moveBall(){
         
