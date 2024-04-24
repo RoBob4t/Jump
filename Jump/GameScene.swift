@@ -21,10 +21,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     public var wait = 0
     public var ball = SKSpriteNode(imageNamed: "ballGreen")
     let scoreNode = SKLabelNode(text: "0")
-    let JUMP_AMOUNT = 1300.0
+    let JUMP_AMOUNT = 1000.0
     public var liftBall = false
     public var oldPos = 0.0
     public var newPos = 0.0
+    var ballPositions: [CGPoint] = []
 
 
     override func didMove(to view: SKView) {
@@ -35,8 +36,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
 
         let text = SKLabelNode(text: "High Score: ")
-        text.fontColor = .white
-        text.position.y = view.bounds.height * 0.5
+        text.fontName = "American Typewriter"
+        text.fontSize = 30
+        text.position.y = view.bounds.height * 0.48
         addChild(text)
 
 
@@ -83,7 +85,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
             let sceneWidth = view.bounds.width
             let posX = CGFloat.random(in: -sceneWidth+200...sceneWidth-200)
-            let posY = t*69 - 300
+            let posY = t * 60 - 320
            /*
             var bound = Bound(posX: posX, id: t, bound: SKShapeNode())
             
@@ -154,10 +156,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     func didBegin(_ contact: SKPhysicsContact) {
 
-        var boundname = "\(String(describing: contact.bodyA.node!.name))"
+        let boundname = "\(String(describing: contact.bodyA.node!.name))"
         print(boundname.dropFirst(15).dropLast(2))
         score = Int(boundname.dropFirst(15).dropLast(2))!
-        scoreNode.text = "\(score)"
+        if Int(scoreNode.text!)! < score{
+            scoreNode.text = "\(score)"
+        }
         
         if contact.bodyA.node?.name == "ground" || contact.bodyB.node?.name == "ground" || contact.bodyA.node!.name!.contains("bound") || contact.bodyB.node!.name!.contains("bound"){
             liftBall.toggle()
@@ -165,12 +169,54 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
 
-    var requiredBallPos: CGFloat = 500
+    var requiredBallPos: CGFloat = 300
+    var cycleNum = 0
     override func update(_ currentTime: TimeInterval) {
+        
+        var opacityAmount = 1.0
+        
+        enumerateChildNodes(withName: "*BallClone*"){
+            node,_  in
+            
+            node.removeFromParent()
+            
+        }
 
+        if ballPositions.count > 10{
+            
+            
+            
+            ballPositions.remove(at: 0)
+            
+            if cycleNum == 1{
+                
+                ballPositions.append(ball.position)
+                
+            }else{
+                cycleNum += 1
+            }
+            
+        }else{
+            
+            if cycleNum == 1{
+                ballPositions.append(ball.position)
+                cycleNum -= 2
+            }else{
+                cycleNum += 1
+            }
+            
+        }
 
-
-
+        
+        
+        for position in ballPositions {
+            let ballClone = SKSpriteNode(imageNamed: "ballGreen")
+            ballClone.position = position
+            ballClone.name = "BallClone" + "\(position)"
+            ballClone.alpha = opacityAmount
+            opacityAmount -= 0.1
+            addChild(ballClone)
+        }
 
 
         if ball.physicsBody?.velocity.dx != 0{
@@ -200,11 +246,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
 
         if ball.position.y > requiredBallPos{
-            if (scene?.anchorPoint.y)! > (-requiredBallPos/800){
+            if (scene?.anchorPoint.y)! > (-requiredBallPos/scene!.frame.height){
                 scene?.anchorPoint.y -= 0.001
                 scoreNode.position.y += (scene!.frame.height)/1000
             }else{
-                requiredBallPos += 800
+                requiredBallPos += scene!.frame.height/2
                 
 
             }

@@ -29,6 +29,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         self.anchorPoint = CGPoint(x: 1, y: 1)
 
         let text = SKLabelNode(text: "High Score: ")
+        
         text.fontColor = .white
         addChild(text)
 
