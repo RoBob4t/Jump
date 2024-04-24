@@ -16,14 +16,16 @@ import GameplayKit
 class GameScene: SKScene, SKPhysicsContactDelegate {
 
 
-
+    public var score = 0
     public var canAdd = true
     public var wait = 0
     public var ball = SKSpriteNode(imageNamed: "ballGreen")
+    let scoreNode = SKLabelNode(text: "0")
     let JUMP_AMOUNT = 1300.0
     public var liftBall = false
     public var oldPos = 0.0
     public var newPos = 0.0
+
 
     override func didMove(to view: SKView) {
 
@@ -32,11 +34,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
 
 
+        let text = SKLabelNode(text: "High Score: ")
+        text.fontColor = .white
+        text.position.y = view.bounds.height * 0.5
+        addChild(text)
 
 
 
-
-
+        
+        scoreNode.fontSize = 50
+        scoreNode.fontColor = .white
+        scoreNode.position.y = view.bounds.height * 0.6
+        scoreNode.name = "score"
+        scoreNode.fontName = "Atari Font Full Version"
+        addChild(scoreNode)
+        
         var points = [CGPoint(x: -300, y: -350),CGPoint(x: 300, y: -350)]
 
         let ground = SKShapeNode(splinePoints: &points,
@@ -47,7 +59,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ground.physicsBody?.restitution = 0.0
         ground.physicsBody?.isDynamic = false
         ground.physicsBody?.friction = 0
-        ground.name = "ground"
+        ground.name = "bound0"
         ground.physicsBody?.collisionBitMask = 0xFFFFFFFF
         ground.physicsBody?.contactTestBitMask = 0xFFFFFFFF
 
@@ -142,7 +154,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     func didBegin(_ contact: SKPhysicsContact) {
 
-        print("\(String(describing: contact.bodyA.node?.name))")
+        var boundname = "\(String(describing: contact.bodyA.node!.name))"
+        print(boundname.dropFirst(15).dropLast(2))
+        score = Int(boundname.dropFirst(15).dropLast(2))!
+        scoreNode.text = "\(score)"
+        
         if contact.bodyA.node?.name == "ground" || contact.bodyB.node?.name == "ground" || contact.bodyA.node!.name!.contains("bound") || contact.bodyB.node!.name!.contains("bound"){
             liftBall.toggle()
          }
@@ -184,11 +200,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
 
         if ball.position.y > requiredBallPos{
-            if (scene?.anchorPoint.y)! > (-requiredBallPos/500){
+            if (scene?.anchorPoint.y)! > (-requiredBallPos/800){
                 scene?.anchorPoint.y -= 0.001
+                scoreNode.position.y += (scene!.frame.height)/1000
             }else{
-                requiredBallPos += 500
-                print(requiredBallPos)
+                requiredBallPos += 800
+                
 
             }
         }
