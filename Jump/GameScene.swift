@@ -16,23 +16,25 @@ import GameplayKit
 class GameScene: SKScene, SKPhysicsContactDelegate {
 
 
-    public var score = 0
-    public var canAdd = true
-    public var wait = 0
-    public var ball = SKSpriteNode(imageNamed: "ballGreen")
+    var score = 0
+    var canAdd = true
+    var wait = 0
+    var ball = SKSpriteNode(imageNamed: "ballGreen")
     let scoreNode = SKLabelNode(text: "0")
-    let JUMP_AMOUNT = 1000.0
-    public var liftBall = false
-    public var oldPos = 0.0
-    public var newPos = 0.0
+    let JUMP_AMOUNT = 650.0
+    var liftBall = false
+    var oldPos = 0.0
+    var newPos = 0.0
     var ballPositions: [CGPoint] = []
+    var nodePositions: [CGPoint] = []
+    var incrementAmount = 0.001
 
 
     override func didMove(to view: SKView) {
-
+        
 
         physicsWorld.contactDelegate = self
-
+        physicsWorld.gravity.dy = -4
 
 
         let text = SKLabelNode(text: "High Score: ")
@@ -84,8 +86,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for t in 1...200{
 
             let sceneWidth = view.bounds.width
-            let posX = CGFloat.random(in: -sceneWidth+200...sceneWidth-200)
-            let posY = t * 60 - 320
+            var posX = CGFloat.random(in: -sceneWidth+200...sceneWidth-200)
+           
+
+            let posY = t * 70 - 330
            /*
             var bound = Bound(posX: posX, id: t, bound: SKShapeNode())
             
@@ -96,6 +100,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
             var points = [CGPoint(x: Int(posX)-17, y: posY),CGPoint(x: Int(posX)+17, y: posY)]
             let bound = SKShapeNode(splinePoints: &points, count: 2)
+            
+            
             bound.lineWidth = 10
             bound.physicsBody = SKPhysicsBody(edgeFrom: CGPoint(x: Int(posX) - 18, y: posY), to: CGPoint(x: Int(posX) + 18, y: posY))
             bound.physicsBody?.restitution = 0.0
@@ -171,9 +177,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     var requiredBallPos: CGFloat = 300
     var cycleNum = 0
+    var boundary = -UIScreen.main.bounds.size.height
+    
     override func update(_ currentTime: TimeInterval) {
+
         
-        var opacityAmount = 1.0
+        if ball.position.y < boundary{
+            
+            self.removeAllChildren()
+            
+        }
+        
+        var opacityAmount = 0.0
         
         enumerateChildNodes(withName: "*BallClone*"){
             node,_  in
@@ -208,13 +223,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
 
         
-        
+    
         for position in ballPositions {
             let ballClone = SKSpriteNode(imageNamed: "ballGreen")
             ballClone.position = position
             ballClone.name = "BallClone" + "\(position)"
             ballClone.alpha = opacityAmount
-            opacityAmount -= 0.1
+            opacityAmount += 0.1
             addChild(ballClone)
         }
 
@@ -229,13 +244,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
 
 
-            if (self.ball.physicsBody?.velocity.dy)! >= 0{
-
+            if (self.ball.physicsBody?.velocity.dy)! >= -100{
 
                 node.physicsBody?.categoryBitMask = 0
 
             }else{
-
+             
                 node.physicsBody?.categoryBitMask = 0xFFFFFFFF
             }
 
@@ -247,8 +261,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         if ball.position.y > requiredBallPos{
             if (scene?.anchorPoint.y)! > (-requiredBallPos/scene!.frame.height){
-                scene?.anchorPoint.y -= 0.001
-                scoreNode.position.y += (scene!.frame.height)/1000
+                incrementAmount = 0.001
+                
+                scene?.anchorPoint.y -= incrementAmount
+                scoreNode.position.y += (scene!.frame.height) * incrementAmount
+                boundary += (scene!.frame.height) * incrementAmount
+                print(boundary)
             }else{
                 requiredBallPos += scene!.frame.height/2
                 
