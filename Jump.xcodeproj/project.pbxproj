@@ -17,6 +17,7 @@
 		934F30142B337C0800E1AB46 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 934F30122B337C0800E1AB46 /* Main.storyboard */; };
 		934F30162B337C0A00E1AB46 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 934F30152B337C0A00E1AB46 /* Assets.xcassets */; };
 		934F30192B337C0A00E1AB46 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 934F30172B337C0A00E1AB46 /* LaunchScreen.storyboard */; };
+		9354B30A2BE2E7AE0004BBFE /* DeathAnimation.sks in Resources */ = {isa = PBXBuildFile; fileRef = 9354B3092BE2E7AE0004BBFE /* DeathAnimation.sks */; };
 		93F560782BD81B3B0061DE7E /* JumpWatchAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93F560772BD81B3B0061DE7E /* JumpWatchAppApp.swift */; };
 		93F5607A2BD81B3B0061DE7E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93F560792BD81B3B0061DE7E /* ContentView.swift */; };
 		93F5607C2BD81B3C0061DE7E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 93F5607B2BD81B3C0061DE7E /* Assets.xcassets */; };
@@ -60,6 +61,7 @@
 		934F30132B337C0800E1AB46 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		934F30152B337C0A00E1AB46 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		934F30182B337C0A00E1AB46 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		9354B3092BE2E7AE0004BBFE /* DeathAnimation.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = DeathAnimation.sks; sourceTree = "<group>"; };
 		93F560752BD81B3B0061DE7E /* JumpWatchApp Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "JumpWatchApp Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		93F560772BD81B3B0061DE7E /* JumpWatchAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JumpWatchAppApp.swift; sourceTree = "<group>"; };
 		93F560792BD81B3B0061DE7E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 				934F30082B337C0800E1AB46 /* AppDelegate.swift */,
 				934F300A2B337C0800E1AB46 /* GameScene.sks */,
 				934F300C2B337C0800E1AB46 /* Actions.sks */,
+				9354B3092BE2E7AE0004BBFE /* DeathAnimation.sks */,
 				934F300E2B337C0800E1AB46 /* GameScene.swift */,
 				934F30102B337C0800E1AB46 /* GameViewController.swift */,
 				934F30122B337C0800E1AB46 /* Main.storyboard */,
@@ -224,6 +227,7 @@
 				933457B72BD96C3A008B9C4F /* atari-font in Resources */,
 				934F300B2B337C0800E1AB46 /* GameScene.sks in Resources */,
 				934F30162B337C0A00E1AB46 /* Assets.xcassets in Resources */,
+				9354B30A2BE2E7AE0004BBFE /* DeathAnimation.sks in Resources */,
 				934F30192B337C0A00E1AB46 /* LaunchScreen.storyboard in Resources */,
 				934F300D2B337C0800E1AB46 /* Actions.sks in Resources */,
 			);

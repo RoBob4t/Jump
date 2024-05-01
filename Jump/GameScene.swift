@@ -14,12 +14,12 @@ import GameplayKit
 
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
-
-
+    
+    
     var score = 0
     var canAdd = true
     var wait = 0
-    var ball = SKSpriteNode(imageNamed: "ballGreen")
+    var ball = SKShapeNode(circleOfRadius: 14.666666984558105)
     let scoreNode = SKLabelNode(text: "0")
     let JUMP_AMOUNT = 650.0
     var liftBall = false
@@ -28,23 +28,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var ballPositions: [CGPoint] = []
     var nodePositions: [CGPoint] = []
     var incrementAmount = 0.001
-
-
+    
+    
     override func didMove(to view: SKView) {
         
-
+        scene?.backgroundColor = .black
+        
         physicsWorld.contactDelegate = self
         physicsWorld.gravity.dy = -4
-
-
+        
+        
         let text = SKLabelNode(text: "High Score: ")
         text.fontName = "American Typewriter"
         text.fontSize = 30
         text.position.y = view.bounds.height * 0.48
         addChild(text)
-
-
-
+        
+        
+        
         
         scoreNode.fontSize = 50
         scoreNode.fontColor = .white
@@ -54,10 +55,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(scoreNode)
         
         var points = [CGPoint(x: -300, y: -350),CGPoint(x: 300, y: -350)]
-
+        
         let ground = SKShapeNode(splinePoints: &points,
-                                          count: points.count)
-
+                                 count: points.count)
+        
         ground.lineWidth = 5
         ground.physicsBody = SKPhysicsBody(edgeFrom: CGPoint(x: -300, y: -350), to: CGPoint(x: 300, y: -350))
         ground.physicsBody?.restitution = 0.0
@@ -66,12 +67,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ground.name = "bound0"
         ground.physicsBody?.collisionBitMask = 0xFFFFFFFF
         ground.physicsBody?.contactTestBitMask = 0xFFFFFFFF
-
+        
         addChild(ground)
-
-
+        
+        ball.strokeColor = .gray
+        ball.fillColor = .white
         ball.position = CGPoint(x: 0, y: -300)
-        ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width/2)
+        ball.physicsBody = SKPhysicsBody(circleOfRadius: 14.666666984558105)
         ball.physicsBody?.usesPreciseCollisionDetection = true
         ball.physicsBody?.restitution = 0.0
         ball.physicsBody?.linearDamping = 0.0
@@ -80,24 +82,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody?.collisionBitMask = 0x2
         ball.physicsBody?.contactTestBitMask = 0x1
         addChild(ball)
-
-
-
+        
+        
+        
         for t in 1...200{
-
+            
             let sceneWidth = view.bounds.width
             var posX = CGFloat.random(in: -sceneWidth+200...sceneWidth-200)
-           
-
+            
+            
             let posY = t * 70 - 330
-           /*
-            var bound = Bound(posX: posX, id: t, bound: SKShapeNode())
+            /*
+             var bound = Bound(posX: posX, id: t, bound: SKShapeNode())
+             
+             bound.makeBound()
+             
+             addChild(bound.bound)
+             */
             
-            bound.makeBound()
-            
-            addChild(bound.bound)
-            */
-
             var points = [CGPoint(x: Int(posX)-17, y: posY),CGPoint(x: Int(posX)+17, y: posY)]
             let bound = SKShapeNode(splinePoints: &points, count: 2)
             
@@ -111,24 +113,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //bound.physicsBody?.categoryBitMask = 0
             //bound.physicsBody?.collisionBitMask = 0
             //bound.physicsBody?.contactTestBitMask = 0
-
-
+            
+            
             addChild(bound)
         }
-
-
+        
+        
     }
-
-
+    
+    
     func touchDown(atPoint pos : CGPoint) {
-
+        
         oldPos = pos.x
-
-       // self.addChild(newNode)
+        
+        // self.addChild(newNode)
     }
-
+    
     func touchMoved(toPoint pos : CGPoint) {
-
+        
         newPos = pos.x
         let dx = newPos-oldPos
         if ball.position.x + dx < 270 && ball.position.x + dx > -270 {
@@ -136,32 +138,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         oldPos = newPos
     }
-
+    
     func touchUp(atPoint pos : CGPoint) {
-
+        
     }
-
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-
-
+        
+        
         for t in touches {
-
+            
             self.touchDown(atPoint: t.location(in: self))
-
+            
             let location = t.location(in: self)
             let touchedNode = atPoint(location)
             if touchedNode.name == "HelloButton" {
                 self.enumerateChildNodes(withName: "ballGreen") {
                     (node, stop) in
-
+                    
                     node.removeFromParent()
                 }
             }
         }
     }
-
+    
     func didBegin(_ contact: SKPhysicsContact) {
-
+        
         let boundname = "\(String(describing: contact.bodyA.node!.name))"
         print(boundname.dropFirst(15).dropLast(2))
         score = Int(boundname.dropFirst(15).dropLast(2))!
@@ -171,22 +173,49 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if contact.bodyA.node?.name == "ground" || contact.bodyB.node?.name == "ground" || contact.bodyA.node!.name!.contains("bound") || contact.bodyB.node!.name!.contains("bound"){
             liftBall.toggle()
-         }
+        }
     }
-
-
+    
+    
     var requiredBallPos: CGFloat = 300
     var cycleNum = 0
-    var boundary = -UIScreen.main.bounds.size.height
+    var boundary = -UIScreen.main.bounds.size.height + 100
     
     override func update(_ currentTime: TimeInterval) {
-
+        
         
         if ball.position.y < boundary{
             
-            self.removeAllChildren()
             
+            
+            let explosion = SKEmitterNode(fileNamed: "DeathAnimation")
+            explosion?.position = CGPoint(x: ball.position.x, y: ball.position.y + 40)
+            let explodeAction = SKAction.run {
+                
+                self.addChild(explosion!)
+                self.ball.removeFromParent()
+                
+            }
+            
+            let removeExplodeAction = SKAction.run {
+                explosion?.removeFromParent()
+            }
+            let wait = SKAction.wait(forDuration: 0.5)
+            let remove = SKAction.run { [self] in
+                boundary = -1000000000
+            }
+            
+            let fadeOut = SKAction.fadeAlpha(to: 0, duration: 2)
+            let explodeSequence = SKAction.sequence([explodeAction, wait, remove, removeExplodeAction])
+            ball.removeFromParent()
+            ball.removeAllActions()
+            self.run(explodeSequence)
+            let finalSequence = SKAction.sequence([wait, fadeOut])
+            self.run(finalSequence)
         }
+        
+
+
         
         var opacityAmount = 0.0
         
@@ -225,7 +254,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     
         for position in ballPositions {
-            let ballClone = SKSpriteNode(imageNamed: "ballGreen")
+           
+            let ballClone = SKShapeNode(circleOfRadius: 14.666666984558105)
+            ballClone.fillColor = .white
+            ballClone.strokeColor = .gray
             ballClone.position = position
             ballClone.name = "BallClone" + "\(position)"
             ballClone.alpha = opacityAmount
