@@ -11,12 +11,12 @@ import GameplayKit
 
 
 
-
+var score = 0
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
-    var score = 0
+    
     var canAdd = true
     var wait = 0
     var ball = SKShapeNode(circleOfRadius: 14.666666984558105)
@@ -205,13 +205,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 boundary = -1000000000
             }
             
-            let fadeOut = SKAction.fadeAlpha(to: 0, duration: 2)
+            let fadeOut = SKAction.fadeAlpha(to: 0, duration: 0.5)
+            let runEndScene = SKAction.run {
+                var newScene = GameEndScene(size: self.size)
+                newScene.scaleMode = SKSceneScaleMode.aspectFill
+                newScene.anchorPoint.x = 0.5
+                newScene.anchorPoint.y = 0.5
+                self.scene?.view!.presentScene(newScene, transition: .fade(with: .black, duration: 2))
+            }
             let explodeSequence = SKAction.sequence([explodeAction, wait, remove, removeExplodeAction])
             ball.removeFromParent()
             ball.removeAllActions()
             self.run(explodeSequence)
-            let finalSequence = SKAction.sequence([wait, fadeOut])
+            let finalSequence = SKAction.sequence([wait, fadeOut, runEndScene])
             self.run(finalSequence)
+            
+           
+            
+            
+           
         }
         
 

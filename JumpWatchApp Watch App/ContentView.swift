@@ -8,6 +8,7 @@
 import SwiftUI
 import SpriteKit
 
+public var crownPos = 0
 
 class GameScene: SKScene, SKPhysicsContactDelegate{
     
@@ -15,23 +16,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     public var canAdd = true
     public var wait = 0
-    public var ball = SKSpriteNode(imageNamed: "ballGreen")
+    var ball = SKShapeNode(circleOfRadius: 14.666666984558105)
     let JUMP_AMOUNT = 1300.0
     public var liftBall = false
     public var oldPos = 0.0
     public var newPos = 0.0
 
     override func sceneDidLoad() {
-
+        
+        
+        scene?.backgroundColor = .black
 
         physicsWorld.contactDelegate = self
 
         self.anchorPoint = CGPoint(x: 1, y: 1)
 
-        let text = SKLabelNode(text: "High Score: ")
-        
-        text.fontColor = .white
-        addChild(text)
+   
 
 
 
@@ -53,8 +53,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         addChild(ground)
 
 
+        ball.strokeColor = .gray
+        ball.fillColor = .white
         ball.position = CGPoint(x: 0, y: -300)
-        ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width/2)
+        ball.physicsBody = SKPhysicsBody(circleOfRadius: 14.666666984558105)
         ball.physicsBody?.usesPreciseCollisionDetection = true
         ball.physicsBody?.restitution = 0.0
         ball.physicsBody?.linearDamping = 0.0
@@ -178,23 +180,27 @@ struct ContentView: View {
     
     var scene: SKScene {
         let scene = GameScene()
-        scene.size = CGSize(width: WKInterfaceDevice().screenBounds.minX, height: WKInterfaceDevice().screenBounds.minY)
-        scene.scaleMode = .fill
+        scene.size = CGSize(width: 1000, height: 1200)
+        scene.anchorPoint.y = 0.5
+        scene.scaleMode = SKSceneScaleMode.aspectFill
         return scene
     }
     
     var body: some View {
         
-        VStack{
+        
             
             SpriteView(scene: scene)
-                .frame(width: WKInterfaceDevice().screenBounds.minX, height: WKInterfaceDevice().screenBounds.minY)
+            .frame(width: 200, height: 300)
                 .ignoresSafeArea()
-            
-        }
-    }
-}
 
+
+      
+        
+    }
+    
+
+}
 
 
 #Preview {
